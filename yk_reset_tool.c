@@ -5,115 +5,80 @@
 #include "clogger\clogger.h"
 
 
-static ykpiv_rc _send_data(ykpiv_state *state, APDU *apdu,
-	unsigned char *data, unsigned long *recv_len, int *sw) {
-	long rc;
-	unsigned int send_len = (unsigned int)apdu->st.lc + 5;
+#define	YKPIV_OBJ_MSMD			0x5fd000
+#define YKPIV_OBJ_MSMDMSROOTS	(YKPIV_OBJ_MSMD + 1)
+#define	YKPIV_OBJ_MSMDCARDID	(YKPIV_OBJ_MSMD + 2) // Fixed Size: 16 bytes
+#define	YKPIV_OBJ_MSMDCARDCF	(YKPIV_OBJ_MSMD + 3) // Variable Size:  6 bytes - 8KB or more
+#define	YKPIV_OBJ_MSMDCARDAPPS	(YKPIV_OBJ_MSMD + 4) // Fixed Size:  8 bytes
+#define	YKPIV_OBJ_MSMDCMAPFILE	(YKPIV_OBJ_MSMD + 5) // Variable Size:  6 bytes - 8KB or more
 
-	LogInfo("_send_data");
-	if (1) {
-		LogInfo("Data Sent:");
-		LogBuffer(apdu->raw, send_len);
-	}
-	rc = SCardTransmit(state->card, SCARD_PCI_T1, apdu->raw, send_len, NULL, data, recv_len);
-	if (rc != SCARD_S_SUCCESS) {
-		if (1) {
-			LogInfo("error: SCardTransmit failed, rc=%08lx\n", rc);
-		}
-		return YKPIV_PCSC_ERROR;
-	}
 
-	if (1) {
-		LogInfo("Data Received:");
-		LogBuffer(data, *recv_len);
-	}
-	if (*recv_len >= 2) {
-		*sw = (data[*recv_len - 2] << 8) | data[*recv_len - 1];
-	}
-	else {
-		*sw = 0;
-	}
-	return YKPIV_OK;
+void clear_all_pages(ykpiv_state*	state) {
+	ykpiv_rc		ykrc = YKPIV_OK;
+	int				objID;
+	unsigned char	buf[1024 * 2];
+	
+	memset(buf, 0, sizeof(buf));
+
+	printf("Clearning cardcf\n");
+	objID = YKPIV_OBJ_MSMDCARDCF;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+
+	printf("Clearning cardid\n");
+	objID = YKPIV_OBJ_MSMDCARDID;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	
+	printf("Clearning cmapfile\n");
+	objID = YKPIV_OBJ_MSMDCMAPFILE;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+
+	printf("Clearning msroots\n");
+	objID = YKPIV_OBJ_MSMDMSROOTS;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+
+	return;
 }
 
 
 int main(void)
 {
-	ykpiv_rc	rc = 0;
-	ykpiv_state	*state_a;
-	int			verbosity = 0;
-	int			retries = 0;
-	char		buf[1024 * 2];
+	ykpiv_rc		ykrc = YKPIV_OK;
+	ykpiv_state*	ykState;
+	int				verbosity = 0;
+	int				retries = 0;
+	char			key[24] = { 0 };
+	char			pin[9] = { 0 };
 
-	printf("ykpiv_init - state_a\n");
-	if (ykpiv_init(&state_a, verbosity) != YKPIV_OK) {
+
+	printf("ykpiv_init\n");
+	if (ykpiv_init(&ykState, verbosity) != YKPIV_OK) {
 		fprintf(stderr, "Failed initializing library.\n");
 		return 1;
 	}
 
-	printf("ykpiv_connect - state_a\n");
-	rc = ykpiv_connect(state_a, NULL);//"Yubico Yubikey 4 CCID 0"
-	if (rc != YKPIV_OK) {
-		fprintf(stderr, "Failed ykpiv_connect.  rc=%d\n", rc);
+	printf("ykpiv_connect\n");
+	ykrc = ykpiv_connect(ykState, NULL);//"Yubico Yubikey 4 CCID 0"
+	if (ykrc != YKPIV_OK) {
+		fprintf(stderr, "Failed ykpiv_connect.  ykrc=%d\n", ykrc);
 		return 1;
 	}
 
-#if 1
-	unsigned char key[24] = "aaaaaaaaaaaaaaaaaaaaaaaa";
-	printf("ykpiv_authenticate - state_a\n");
-	retries = 0;
-	rc = ykpiv_authenticate(state_a, key);
-	if (rc != YKPIV_OK) {
-		fprintf(stderr, "Failed ykpiv_authenticate. rc=%d\n", rc);
-		return 1;
-	}
+	memcpy(pin, (const char *)"aaaaaaaa", 8);
+	memcpy(key, pin, 8);
+	memcpy(&key[8], pin, 8);
+	memcpy(&key[16], pin, 8);
 
-#define	YKPIV_KEY_MSMD_DIRROOT_ID		0xa0
-#define	YKPIV_KEY_MSMD_DIRROOT_CF		0xa1
-#define	YKPIV_KEY_MSMD_DIRROOT_APPS		0xa2
-#define	YKPIV_KEY_MSMD_DIRMSCP_CMAPFILE	0xa3
+	printf("ykpiv_verify\n");
+	ykrc = ykpiv_verify(ykState, (const char *)pin, &retries);
 
-#define	YKPIV_OBJ_MSMD			0x5fd000
-#define	YKPIV_OBJ_MSMDCARDID	(YKPIV_OBJ_MSMD + 1) // Fixed Size: 16 bytes
-#define	YKPIV_OBJ_MSMDCARDCF	(YKPIV_OBJ_MSMD + 2) // Variable Size:  6 bytes - 8KB or more
-#define	YKPIV_OBJ_MSMDCARDAPPS	(YKPIV_OBJ_MSMD + 3) // Fixed Size:  8 bytes
-#define	YKPIV_OBJ_MSMDCMAPFILE	(YKPIV_OBJ_MSMD + 4) // Variable Size:  6 bytes - 8KB or more
+	printf("ykpiv_authenticate\n");
+	ykrc = ykpiv_authenticate(ykState, (const unsigned char *)key);
 
+	//clear all pages
+	clear_all_pages(ykState);
 
-	for (int j = 1; j <= 4; j++) {
-		for (int i = 0; i < sizeof(buf); i++) {
-			buf[i] = j+0x60;
-		}
-		//YKPIV_OBJ_MSMD + j
-		rc = ykpiv_save_object(state_a, YKPIV_OBJ_MSMD + j, buf, sizeof(buf));
-		if (rc != YKPIV_OK) {
-			fprintf(stderr, "Failed ykpiv_save_object. rc=%d\n", rc);
-			return 1;
-		}
-		int buf_len = sizeof(buf);
-		memset(buf, 0, sizeof(buf));
-		rc = ykpiv_fetch_object(state_a, YKPIV_OBJ_MSMD + j, buf, &buf_len);
-		if (rc != YKPIV_OK) {
-			fprintf(stderr, "Failed ykpiv_fetch_object. rc=%d\n", rc);
-			return 1;
-		}
-		printf("ykpiv_fetch_object[YKPIV_OBJ_MSMD + %d]: buf_len=%d\n", j, buf_len);
-	}
-
-#else
-	printf("_change_pin\n");
-	retries = 0;
-	const char* pwd_a = "aaaaaaaa";
-	const char* pwd_b = "bbbbbbbb";
-	rc = ykpiv_change_pin(state_a, pwd_b, 8, pwd_a, 8, &retries);
-	if (rc != YKPIV_OK) {
-		fprintf(stderr, "Failed ykpiv_change_pin. retries=%d rc=%d\n", retries, rc);
-		return 1;
-	}
-#endif
-
-	printf("\n\nALL PASSED\n");
-	ykpiv_done(state_a);
+	printf("ykpiv_done\n");
+	ykpiv_done(ykState);
 
 	return 0;
 }
