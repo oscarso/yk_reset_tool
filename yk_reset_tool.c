@@ -20,21 +20,29 @@ void clear_all_pages(ykpiv_state*	state) {
 	
 	memset(buf, 0, sizeof(buf));
 
-	printf("Clearning cardcf\n");
+	printf("Clearing cardcf ...");
 	objID = YKPIV_OBJ_MSMDCARDCF;
 	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
 
-	printf("Clearning cardid\n");
+	printf("Clearing cardid ...");
 	objID = YKPIV_OBJ_MSMDCARDID;
 	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
-	
-	printf("Clearning cmapfile\n");
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
+
+	printf("Clearing cmapfile ...");
 	objID = YKPIV_OBJ_MSMDCMAPFILE;
 	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
 
-	printf("Clearning msroots\n");
+	printf("Clearing msroots ...");
 	objID = YKPIV_OBJ_MSMDMSROOTS;
 	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
 
 	return;
 }
@@ -68,16 +76,20 @@ int main(void)
 	memcpy(&key[8], pin, 8);
 	memcpy(&key[16], pin, 8);
 
-	printf("ykpiv_verify\n");
+	printf("Verifying PIN ...");
 	ykrc = ykpiv_verify(ykState, (const char *)pin, &retries);
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
 
-	printf("ykpiv_authenticate\n");
+	printf("Verifying Management Key ...");
 	ykrc = ykpiv_authenticate(ykState, (const unsigned char *)key);
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
 
 	//clear all pages
 	clear_all_pages(ykState);
 
-	printf("ykpiv_done\n");
+	printf("All Done\n");
 	ykpiv_done(ykState);
 
 	return 0;
