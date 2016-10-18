@@ -44,6 +44,27 @@ void clear_all_pages(ykpiv_state*	state) {
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
 
+	printf("Clearing YKPIV_KEY_RETIRED1 ...");
+	objID = YKPIV_KEY_RETIRED1;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
+
+	printf("Clearing YKPIV_KEY_RETIRED2 ...");
+	objID = YKPIV_KEY_RETIRED2;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
+
+	printf("Clearing YKPIV_KEY_RETIRED3 ...");
+	objID = YKPIV_KEY_RETIRED3;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
+
+	printf("\n\n\nPress Any Key to Continue\n");
+	getchar();
+
 	return;
 }
 
