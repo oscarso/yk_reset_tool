@@ -5,12 +5,13 @@
 #include "clogger\clogger.h"
 
 
-#define	YKPIV_OBJ_MSMD			0x5fd000
-#define YKPIV_OBJ_MSMDMSROOTS	(YKPIV_OBJ_MSMD + 1)
-#define	YKPIV_OBJ_MSMDCARDID	(YKPIV_OBJ_MSMD + 2) // Fixed Size: 16 bytes
-#define	YKPIV_OBJ_MSMDCARDCF	(YKPIV_OBJ_MSMD + 3) // Variable Size:  6 bytes - 8KB or more
-#define	YKPIV_OBJ_MSMDCARDAPPS	(YKPIV_OBJ_MSMD + 4) // Fixed Size:  8 bytes
-#define	YKPIV_OBJ_MSMDCMAPFILE	(YKPIV_OBJ_MSMD + 5) // Variable Size:  6 bytes - 8KB or more
+// Move into ykpiv.h later
+#define	szCARD_APPS					"cardapps"
+#define	YKPIV_OBJ_MSMD				0x5fd000
+#define YKPIV_OBJ_MSMDMSROOTS		(YKPIV_OBJ_MSMD + 1)
+#define	YKPIV_OBJ_MSMDCARDCF		(YKPIV_OBJ_MSMD + 2) // Variable Size:  6 bytes - 8KB or more
+#define	YKPIV_OBJ_MSMDCMAPFILE		(YKPIV_OBJ_MSMD + 3) // Variable Size:  6 bytes - 8KB or more
+#define	YKPIV_OBJ_RSAPUBKEYBLOB		(YKPIV_OBJ_MSMD + 3) // Variable Size:
 
 
 void clear_all_pages(ykpiv_state*	state) {
@@ -26,12 +27,6 @@ void clear_all_pages(ykpiv_state*	state) {
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
 
-	printf("Clearing cardid ...");
-	objID = YKPIV_OBJ_MSMDCARDID;
-	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
-	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
-	else { printf("Failed.\n"); }
-
 	printf("Clearing cmapfile ...");
 	objID = YKPIV_OBJ_MSMDCMAPFILE;
 	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
@@ -40,6 +35,12 @@ void clear_all_pages(ykpiv_state*	state) {
 
 	printf("Clearing msroots ...");
 	objID = YKPIV_OBJ_MSMDMSROOTS;
+	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
+	else { printf("Failed.\n"); }
+
+	printf("Clearing YKPIV_OBJ_RSAPUBKEYBLOB ...");
+	objID = YKPIV_OBJ_RSAPUBKEYBLOB;
 	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
