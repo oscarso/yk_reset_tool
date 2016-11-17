@@ -11,7 +11,7 @@
 #define YKPIV_OBJ_MSMDMSROOTS		(YKPIV_OBJ_MSMD + 1)
 #define	YKPIV_OBJ_MSMDCARDCF		(YKPIV_OBJ_MSMD + 2) // Variable Size:  6 bytes - 8KB or more
 #define	YKPIV_OBJ_MSMDCMAPFILE		(YKPIV_OBJ_MSMD + 3) // Variable Size:  6 bytes - 8KB or more
-#define	YKPIV_OBJ_RSAPUBKEYBLOB		(YKPIV_OBJ_MSMD + 3) // Variable Size:
+#define	YKPIV_OBJ_RSAPUBKEYBLOB		(YKPIV_OBJ_MSMD + 4) // Variable Size:
 
 
 void clear_all_pages(ykpiv_state*	state) {
