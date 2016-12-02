@@ -163,6 +163,7 @@
     <ClCompile Include="yk_reset_tool.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cardfilesys.h" />
     <ClInclude Include="clogger\clogger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
