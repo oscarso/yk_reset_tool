@@ -14,40 +14,42 @@ int	getDataOffset(const BYTE bContainerIndex) {
 }
 
 
+ykpiv_rc clear_data(ykpiv_state* state, int objID) {
+	return ykpiv_save_object(state, objID, NULL, 0);
+}
+
+
 void clear_all_pages(ykpiv_state*	state) {
 	ykpiv_rc	ykrc = YKPIV_OK;
 	int			objID;
-	char		buf[1];
-
-	memset(buf, 0, sizeof(buf));
 
 	objID = YKPIV_OBJ_MS_CARDCF;
 	printf("Clearing cardcf (0x%x) ...", objID);
-	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	ykrc = clear_data(state, objID);
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
 
 	objID = YKPIV_OBJ_MS_CMAPFILE;
 	printf("Clearing cmapfile (0x%x) ...", objID);
-	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	ykrc = clear_data(state, objID);
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
 
 	objID = YKPIV_OBJ_MS_MSROOTS;
 	printf("Clearing msroots (0x%x) ...", objID);
-	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	ykrc = clear_data(state, objID);
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
 
 	objID = YKPIV_OBJ_AUTHENTICATION;
 	printf("Clearing YKPIV_OBJ_AUTHENTICATION (0x%x) ...", objID);
-	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	ykrc = clear_data(state, objID);
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
 
 	objID = YKPIV_OBJ_SIGNATURE;
 	printf("Clearing YKPIV_OBJ_SIGNATURE (0x%x) ...", objID);
-	ykrc = ykpiv_save_object(state, objID, buf, sizeof(buf));
+	ykrc = clear_data(state, objID);
 	if (ykrc == YKPIV_OK) { printf("Done.\n"); }
 	else { printf("Failed.\n"); }
 
